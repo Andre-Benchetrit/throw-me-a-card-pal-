@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 cards = [
     "A ♥", "2 ♥", "3 ♥", "4 ♥", "5 ♥", "6 ♥", "7 ♥", "8 ♥", "9 ♥", "10 ♥", "J ♥", "Q ♥", "K ♥",
     "A ♦", "2 ♦", "3 ♦", "4 ♦", "5 ♦", "6 ♦", "7 ♦", "8 ♦", "9 ♦", "10 ♦", "J ♦", "Q ♦", "K ♦",
@@ -21,22 +22,21 @@ def normalize_card_name(card: str) -> str:
         .replace("♣", "clubs")
     )
 
-deck = []
+deck = defaultdict(list)
 
-def card_throw():
-    global deck
+def card_throw(server_id):
     
-    if not deck:
-        deck = cards.copy()
-        random.shuffle(deck)
+    if not deck[server_id]:
+        deck[server_id] = cards.copy()
+        random.shuffle(deck[server_id])
 
-    card = deck.pop()
+    card = deck[server_id].pop()
     is_special = card in special_cards
 
-    return card, len(deck), is_special
+    return card, len(deck[server_id]), is_special
 
-def card_shuffle() -> int:
-    deck.clear()
-    deck.extend(cards)
-    random.shuffle(deck)
-    return len(deck)
+def card_shuffle(server_id) -> int:
+    deck[server_id].clear()
+    deck[server_id].extend(cards)
+    random.shuffle(deck[server_id])
+    return len(deck[server_id])

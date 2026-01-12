@@ -5,7 +5,7 @@ from utils.voice import play_audio
 
 @commands.command(name="card", help="Sorteia uma carta aleatória.")
 async def card(ctx):
-    drawn_card, cards_left, is_special = card_throw()
+    drawn_card, cards_left, is_special = card_throw(ctx.guild.id)
 
     card_name = normalize_card_name(drawn_card)
 
@@ -33,7 +33,7 @@ async def card(ctx):
 
 @commands.command(name="shuffle", help="Embaralha o baralho.")
 async def shuffle(ctx):
-    total = card_shuffle()
+    total = card_shuffle(ctx.guild.id)
     await ctx.send(
         f"🔀 O baralho foi embaralhado!\n"
         f"Total de cartas no baralho: **{total}**"
