@@ -76,6 +76,9 @@ bot.py       -> Discord bot entry point
 
 ## ⚙️ Installation
 
+⚠️Warning!
+If you are seeing this warning, it's because you are in the production repository. To do a clean install and use a local embedding, you need to go to the "Development-Version" branch and do the first embedding using the sentence-transformers module. If you have a Gemini API, feel free to use this one to the clean embeddiment.
+
 ### Prerequisites
 
 - Python 3.9+

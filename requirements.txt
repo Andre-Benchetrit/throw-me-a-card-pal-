@@ -5,3 +5,4 @@ pymupdf
 tqdm
 google-genai
 numpy
+google-generativeai

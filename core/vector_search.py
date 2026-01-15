@@ -1,11 +1,9 @@
 import sqlite3
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from utils.embedding_service import embed
 from core.config import STOPWORDS
 
 DB_PATH = "data/embeddings.db"
-
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 
 def cosine_similarity(a, b):
@@ -43,10 +41,7 @@ def search_keywords(keywords, limit_per_word=2):
     for word in keywords:
         word = word.lower().strip()
 
-        if len(word) < 3:
-            continue
-
-        if word in STOPWORDS:
+        if len(word) < 3 or word in STOPWORDS:
             continue
 
         cursor.execute(
@@ -65,9 +60,8 @@ def search_keywords(keywords, limit_per_word=2):
     return results
 
 
-
 def search(query, top_k=8):
-    query_embedding = model.encode(query)
+    query_embedding = np.array(embed(query), dtype=np.float32)
 
     vector_results = search_vector(query_embedding, top_k)
     keywords = query.lower().split()

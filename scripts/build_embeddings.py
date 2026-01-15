@@ -1,19 +1,19 @@
 import json
 import sqlite3
 from pathlib import Path
-from sentence_transformers import SentenceTransformer
 import numpy as np
 from tqdm import tqdm
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.embedding_service import embed
 
 CHUNKS_PATH = Path("data/chunks.json")
 DB_PATH = Path("data/embeddings.db")
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 def build_database():
-    print("Carregando modelo de embeddings...")
-    model = SentenceTransformer(MODEL_NAME)
-
     print("Carregando chunks...")
     with open(CHUNKS_PATH, encoding="utf-8") as f:
         chunks = json.load(f)
@@ -22,8 +22,10 @@ def build_database():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
+    # recria a tabela do zero
+    cur.execute("DROP TABLE IF EXISTS chunks")
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS chunks (
+        CREATE TABLE chunks (
             id INTEGER PRIMARY KEY,
             page INTEGER,
             text TEXT,
@@ -31,21 +33,23 @@ def build_database():
         )
     """)
 
-    print("Gerando embeddings...")
+    conn.commit()
+
+    print("Gerando embeddings com Gemini...")
     for chunk in tqdm(chunks, desc="Processando chunks"):
         text = chunk["text"]
-        embedding = model.encode(text)
 
-        embedding_blob = embedding.astype(np.float32).tobytes()
+        embedding = np.array(embed(text), dtype=np.float32)
 
         cur.execute(
             "INSERT INTO chunks (id, page, text, embedding) VALUES (?, ?, ?, ?)",
-            (chunk["id"], chunk["page"], text, embedding_blob)
+            (chunk["id"], chunk["page"], text, embedding.tobytes())
         )
 
     conn.commit()
     conn.close()
-    print(f"\nBanco criado em {DB_PATH}")
+    print(f"\n✅ Banco recriado com sucesso em {DB_PATH}")
+
 
 if __name__ == "__main__":
     build_database()
