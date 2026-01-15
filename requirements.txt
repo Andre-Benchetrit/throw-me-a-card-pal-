@@ -3,6 +3,4 @@ python-dotenv
 PyNaCl
 pymupdf
 tqdm
-sentence-transformers
-numpy
 google-genai
