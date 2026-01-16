@@ -11,6 +11,21 @@ DB_PATH = "data/embeddings.db"
 def cosine_similarity(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+def fetch_page_context(page):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT text FROM chunks WHERE page = ? ORDER BY rowid",
+        (page,)
+    )
+
+    texts = [row[0] for row in cursor.fetchall()]
+    conn.close()
+
+    return " ".join(texts)
+
+
 
 def search_vector(query_embedding, top_k=8):
     conn = sqlite3.connect(DB_PATH)
@@ -62,7 +77,7 @@ def search_keywords(keywords, limit_per_word=2):
     return results
 
 
-def search(query, top_k=15):
+def search(query, top_k=8):
     query_embedding = np.array(embed(query), dtype=np.float32)
 
     vector_results = search_vector(query_embedding, top_k)
@@ -84,5 +99,15 @@ def search(query, top_k=15):
 
     reranked = rerank(query, candidates)
 
-    return reranked[:top_k]
+    final_results = []
+
+    for r in reranked[:top_k]:
+        page_context = fetch_page_context(r["page"])
+        final_results.append({
+            "text": page_context,
+            "page": r["page"],
+            "score": r["score"]
+        })
+
+    return final_results
 

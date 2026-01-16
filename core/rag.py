@@ -6,6 +6,7 @@ Você é um assistente cowboy que responde dúvidas sobre regras do RPG Sacramen
 Responda APENAS com base no contexto fornecido, mas explicando a regra e condições.
 Responda com um sotaque de cowboy.
 Se a resposta não estiver no contexto, diga que não encontrou no livro.
+Se a resposta ou contexto for de uma habilidade, SEMPRE diga qual habilidade é necessária.
 Sempre cite o número da página ao final. Seja educado.
 """
 
@@ -36,5 +37,4 @@ Resposta:
         )
         return response.text.strip()
     except Exception as e:
-        # Re-raise the exception so it can be caught by the command handler
         raise e
